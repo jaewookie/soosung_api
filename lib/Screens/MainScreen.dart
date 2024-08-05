@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:soosung_api/Utills/callApi.dart';
 
 import '../Providers/NetworkModel.dart';
@@ -125,10 +124,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     _networkProvider = Provider.of<NetworkModel>(context, listen: false);
 
-    double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
     double screenHeight = MediaQuery
         .of(context)
         .size
