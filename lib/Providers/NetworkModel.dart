@@ -5,6 +5,7 @@ class NetworkModel with ChangeNotifier {
   String? comPort;
   String? endPoint;
   String? targetAdr;
+  Map? apiKeyBody;
   String navUrl = "cmd/nav_point";
   String chgUrl = "cmd/charge";
   String stpUrl = "cmd/cancel_goal";
@@ -22,7 +23,13 @@ class NetworkModel with ChangeNotifier {
   dynamic APIPostData;
 
   NetworkModel(
-      {this.getPoseData, this.currentGoal, this.comPort, this.startUrl, this.endPoint, this.targetAdr});
+      {this.getPoseData,
+      this.currentGoal,
+      this.comPort,
+      this.startUrl,
+      this.endPoint,
+      this.targetAdr,
+      this.apiKeyBody});
 
   void APITargetAdr() {
     targetAdr = "http://$startUrl:$comPort/$endPoint";

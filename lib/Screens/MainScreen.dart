@@ -26,12 +26,15 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   late List<double> buttonSize;
   late double buttonRadius;
 
+  late List<Map> postData;
+
   int portIdx = 0;
   int buttonWidth = 0;
   int buttonHeight = 1;
 
   late List<String> comPorts;
   late List<String> endPoints;
+  int reqCode = 0;
 
   String? hostUrl;
 
@@ -59,62 +62,48 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     //   robotInit = _prefs.getBool('robotInit')!;
     // }
     // _networkProvider.hostIP();
-    getting(_networkProvider.targetAdr!, true);
+    apiCom(_networkProvider.targetAdr!, _networkProvider.apiKeyBody!, true);
 
     await Future.delayed(const Duration(milliseconds: 500));
   }
 
-  dynamic getting(String apiAdr, bool jsonMap) async {
-    // String apiAddress = hostIP + comPortNum + "/" + endPoint + "/";
+  dynamic apiCom(String apiAdr, Map keyBody, bool jsonMap) async {
     String apiAddress = apiAdr;
+    Map apiKeyBody = keyBody;
     String jsonDataParse = "";
-    // print('$apiAddress');
 
-    NetworkGet network = NetworkGet(apiAddress);
+    NetworkPost network = NetworkPost(apiAddress, apiKeyBody);
 
-    dynamic getApiData = await network.getAPI();
+    dynamic getApiData = await network.postAPI();
 
     if (jsonMap == true) {
       _networkProvider.getApiData = getApiData;
     } else {
       jsonDataParse = jsonEncode(getApiData);
-      jsonDataParse = jsonDataParse.splitMapJoin(
-          '{',
-          onMatch: (Match m) {
-            return '${m[0]!}' + '\n';
-          },
-          onNonMatch: (String n) {
-            return n + '';
-          });
-      jsonDataParse = jsonDataParse.splitMapJoin(
-          '},',
-          onMatch: (Match m) {
-            return '${m[0]!}' + '\n';
-          },
-          onNonMatch: (String n) {
-            return n + '';
-          });
-      jsonDataParse = jsonDataParse.splitMapJoin(
-          ',',
-          onMatch: (Match m) {
-            return '${m[0]!}' + '\n';
-          },
-          onNonMatch: (String n) {
-            return n + '';
-          });
-      jsonDataParse = jsonDataParse.splitMapJoin(
-          '}',
-          onMatch: (Match m) {
-            return '${m[0]!}' + '';
-          },
-          onNonMatch: (String n) {
-            return n + '\n';
-          });
+      jsonDataParse = jsonDataParse.splitMapJoin('{', onMatch: (Match m) {
+        return '${m[0]!}' + '\n';
+      }, onNonMatch: (String n) {
+        return n + '';
+      });
+      jsonDataParse = jsonDataParse.splitMapJoin('},', onMatch: (Match m) {
+        return '${m[0]!}' + '\n';
+      }, onNonMatch: (String n) {
+        return n + '';
+      });
+      jsonDataParse = jsonDataParse.splitMapJoin(',', onMatch: (Match m) {
+        return '${m[0]!}' + '\n';
+      }, onNonMatch: (String n) {
+        return n + '';
+      });
+      jsonDataParse = jsonDataParse.splitMapJoin('}', onMatch: (Match m) {
+        return '${m[0]!}' + '';
+      }, onNonMatch: (String n) {
+        return n + '\n';
+      });
 
       _networkProvider.getApiData = jsonDataParse;
 
       // _networkProvider.getApiData = jsonEncode(getApiData);
-
     }
 
     setState(() {});
@@ -124,10 +113,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     _networkProvider = Provider.of<NetworkModel>(context, listen: false);
 
-    double screenHeight = MediaQuery
-        .of(context)
-        .size
-        .height;
+    double screenHeight = MediaQuery.of(context).size.height;
 
     hostUrl = "http://ip:port/services/";
 
@@ -159,6 +145,71 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       'lift_operation'
     ];
 
+    postData = [
+      {
+        "reqCode": reqCode,
+        "reqTime": "",
+        "type": 1,
+        "data": {
+          "value": {
+            "taskname": "",
+            "task_type": "",
+            "getlocation": "",
+            "putlocation": "",
+            "deslocation": "",
+            "runheight": 1,
+            "lastheight": 1,
+            "token": "",
+            "podCode": "",
+            "loadheight": 1,
+            "unloadheight": 1,
+            "containheight": 1,
+            "conupheight": 1,
+            "emptyheight": 1,
+            "empdownheight": 1
+          }
+        }
+      },
+      {
+        "reqCode": reqCode,
+        "reqTime": "",
+        "type": 1,
+        "data": {"taskname": "", "action": ""}
+      },
+      {"reqCode": reqCode, "reqTime": "", "type": 1, "data": ""},
+      {"reqCode": reqCode, "reqTime": "", "type": 1, "taskstatus": 1},
+      {"reqCode": reqCode, "reqTime": "", "type": 1, "deviceid": ""},
+      {
+        "reqCode": reqCode,
+        "reqTime": "",
+        "type": 1,
+        "action": 1,
+        "forkheight": 1,
+        "deviceid": ""
+      },
+      {
+        "reqCode": reqCode,
+        "reqTime": "",
+        "type": 1,
+        "deviceid": "",
+        "mode": 1,
+        "linearspeed": 1.1,
+        "angularspeed": 1.1
+      },
+      {
+        "reqCode": reqCode,
+        "rescode": 0,
+        "deviceid": "",
+        "reqTime": "",
+        "type": 1,
+        "currentliftno": 1,
+        "desliftno": 1,
+        "podcody": 1,
+        "reqtype": 1,
+        "liftaction": 1,
+      }
+    ];
+
     buttonRadius = 30;
 
     return Scaffold(
@@ -182,22 +233,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                     width: buttonSize[buttonWidth],
                     child: TextField(
                       controller: configController,
-                      style: Theme
-                          .of(context)
-                          .textTheme
-                          .titleLarge,
+                      style: Theme.of(context).textTheme.titleLarge,
                       keyboardType: TextInputType.url,
                       decoration: InputDecoration(
                         fillColor: Colors.transparent,
                         filled: true,
                         enabledBorder: OutlineInputBorder(
                           borderSide:
-                          const BorderSide(color: Colors.black, width: 1),
+                              const BorderSide(color: Colors.black, width: 1),
                           borderRadius: BorderRadius.circular(15),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide:
-                          const BorderSide(color: Colors.white, width: 2),
+                              const BorderSide(color: Colors.white, width: 2),
                           borderRadius: BorderRadius.circular(15),
                         ),
                       ),
@@ -279,21 +327,28 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         fixedSize: Size(
                             buttonSize[buttonWidth], buttonSize[buttonHeight])),
                     onPressed: () {
-                      // setState(() {
-                      //   _networkProvider.targetAdr =
-                      //   "https://reqres.in/api/users/${i + 1}";
-                      // });
                       setState(() {
-                        // API 테스트 후 수정 및 적용 할 부분
-                        _networkProvider.comPort = comPorts[portIdx];
-                        _networkProvider.endPoint = endPoints[i];
-                        _networkProvider.APITargetAdr();
-                        portIdx++;
-                        if(portIdx == 3){
-                          portIdx = 0;
-                        }
+                        _networkProvider.targetAdr =
+                        "https://reqres.in/api/users";
+                        _networkProvider.apiKeyBody = {
+                          "name": "asdf",
+                          "job": "fff"
+                        };
                       });
-                      getting(_networkProvider.targetAdr!, false);
+                      // setState(() {
+                      //   // API 테스트 후 수정 및 적용 할 부분
+                      //   _networkProvider.comPort = comPorts[portIdx];
+                      //   _networkProvider.endPoint = endPoints[i];
+                      //   _networkProvider.apiKeyBody = postData[i];
+                      //   _networkProvider.APITargetAdr();
+                      //   reqCode++;
+                      //   portIdx++;
+                      //   if (portIdx == 3) {
+                      //     portIdx = 0;
+                      //   }
+                      // });
+                      apiCom(_networkProvider.targetAdr!,
+                          _networkProvider.apiKeyBody!, false);
                     },
                     child: Text(
                       buttonName[i],
@@ -310,9 +365,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               children: [
                 SizedBox(
                     child: Text(
-                      '${_networkProvider.getApiData}',
-                      style: TextStyle(fontSize: 10, color: Colors.black),
-                    )),
+                  // '${_networkProvider.getApiData}',
+                  '${_networkProvider.apiKeyBody}',
+                  style: TextStyle(fontSize: 10, color: Colors.black),
+                )),
               ],
             ),
           ]),

@@ -3,14 +3,14 @@ import 'dart:convert';
 
 class NetworkPost {
   final String apiAddress;
-  final String keyBody;
+  final Map keyBody;
 
   NetworkPost(this.apiAddress, this.keyBody);
 
   Future<dynamic> postAPI() async {
     var url = apiAddress;
 
-    final String apiBody = keyBody;
+    final Map apiBody = keyBody;
 
     http.Response response = await http.post(Uri.parse(url), body: apiBody);
 
